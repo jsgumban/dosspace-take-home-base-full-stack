@@ -35,3 +35,75 @@ export function updateWorkspace(dbString: string, workspace: Workspace): Workspa
   update(dbString, 'workspaces', workspace.id, workspace)
   return findOne(dbString, 'workspaces', workspace.id)
 }
+
+
+/** Adds a build shipment in a workspace in the database */
+/** Returns the updated workspace */
+export function addBuildShipment(dbString: string, workspaceId: string, buildNumber: string): Workspace {
+  const workspace = getWorkspace(dbString, workspaceId)
+
+  const newBuildShipment = {
+    id: uuidv4(),
+    buildNumber,
+    shipments: [],
+  }
+
+  workspace.buildShipments.push(newBuildShipment)
+  return updateWorkspace(dbString, workspace)
+}
+
+/** Delete a build shipment in a workspace in the database */
+/** Returns the updated workspace */
+export function deleteBuildShipment(
+  dbString: string,
+  workspaceId: string,
+  buildShipmentId: string
+): Workspace {
+  const workspace = getWorkspace(dbString, workspaceId)
+
+  workspace.buildShipments = workspace.buildShipments.filter((b) => b.id !== buildShipmentId)
+  return updateWorkspace(dbString, workspace)
+}
+
+/** Add shipment in workspace's build shipment in the database */
+/** Returns the updated workspace */
+export function addShipment(
+  dbString: string,
+  workspaceId: string,
+  buildShipmentId: string,
+  shipment: {
+    description: string
+    orderNumber: string
+    cost: number
+  }
+): Workspace {
+  const workspace = getWorkspace(dbString, workspaceId)
+
+  const build = workspace.buildShipments.find((b) => b.id === buildShipmentId)
+  if (!build) throw new Error('Build shipment not found')
+
+  build.shipments.push({
+    id: uuidv4(),
+    ...shipment,
+  })
+
+  return updateWorkspace(dbString, workspace)
+}
+
+/** Delete shipment in workspace's build shipment in the database */
+/** Returns the updated workspace */
+export function deleteShipment(
+  dbString: string,
+  workspaceId: string,
+  buildShipmentId: string,
+  shipmentId: string
+): Workspace {
+  const workspace = getWorkspace(dbString, workspaceId)
+
+  const build = workspace.buildShipments.find((b) => b.id === buildShipmentId)
+  if (!build) throw new Error('Build shipment not found')
+
+  build.shipments = build.shipments.filter((s) => s.id !== shipmentId)
+
+  return updateWorkspace(dbString, workspace)
+}
