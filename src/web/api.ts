@@ -26,6 +26,51 @@ class DosspaceApi {
       throw new Error('Unable to fetch workspace')
     }
   }
+
+
+  static async addBuildShipment(workspaceId: string, buildNumber: string): Promise<DetailWorkspace> {
+    const { data } = await axios.post(`${BASE_URL}/workspaces/${workspaceId}/build-shipments`, {
+      buildNumber,
+    })
+    return data
+  }
+
+  static async deleteBuildShipment(workspaceId: string, buildShipmentId: string): Promise<DetailWorkspace> {
+    const { data } = await axios.delete(
+      `${BASE_URL}/workspaces/${workspaceId}/build-shipments/${buildShipmentId}`
+    )
+    return data
+  }
+
+
+  static async addShipment(
+    workspaceId: string,
+    buildShipmentId: string,
+    description: string,
+    orderNumber: string,
+    cost: number
+  ): Promise<DetailWorkspace> {
+    const { data } = await axios.post(
+      `${BASE_URL}/workspaces/${workspaceId}/build-shipments/${buildShipmentId}/shipments`,
+      { description, orderNumber, cost }
+    )
+    return data
+  }
+
+
+  static async deleteShipment(
+    workspaceId: string,
+    buildShipmentId: string,
+    shipmentId: string
+  ): Promise<DetailWorkspace> {
+    const { data } = await axios.delete(
+      `${BASE_URL}/workspaces/${workspaceId}/build-shipments/${buildShipmentId}/shipments/${shipmentId}`
+    )
+    return data
+  }
+
 }
+
+
 
 export default DosspaceApi

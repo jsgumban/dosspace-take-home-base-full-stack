@@ -1,6 +1,12 @@
 import express from 'express'
 import cors from 'cors'
-import { createWorkspace, getWorkspace, getWorkspaces, updateWorkspace } from './util'
+import {
+  addBuildShipment, addShipment,
+  createWorkspace, deleteBuildShipment, deleteShipment,
+  getWorkspace,
+  getWorkspaces,
+  updateWorkspace
+} from './util'
 import { reset } from './db/db'
 
 const app = express()
@@ -41,6 +47,53 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
   res.json({ workspace: createWorkspace(dbString) })
 })
+
+
+/** Adds new build shipment in a workspace **/
+app.post('/workspaces/:workspaceId/build-shipments', (req, res) => {
+  const { workspaceId } = req.params
+  const { buildNumber } = req.body
+  const updated = addBuildShipment(dbString, workspaceId, buildNumber)
+  res.json(updated)
+})
+
+/** Deletes build shipment in a workspace **/
+app.delete('/workspaces/:workspaceId/build-shipments/:buildShipmentId', (req, res) => {
+  const { workspaceId, buildShipmentId } = req.params
+  const updated = deleteBuildShipment(dbString, workspaceId, buildShipmentId)
+  res.json(updated)
+})
+
+
+/** Adds new shipment in a workspace's build shipment **/
+app.post('/workspaces/:workspaceId/build-shipments/:buildShipmentId/shipments', (req, res) => {
+  const { workspaceId, buildShipmentId } = req.params
+  const { description, orderNumber, cost } = req.body
+
+  try {
+    const updated = addShipment(dbString, workspaceId, buildShipmentId, {
+      description,
+      orderNumber,
+      cost,
+    })
+    res.json(updated)
+  } catch (err) {
+    res.status(404);
+  }
+})
+
+/** Deletes new shipment in a workspace's build shipment **/
+app.delete('/workspaces/:workspaceId/build-shipments/:buildShipmentId/shipments/:shipmentId', (req, res) => {
+  const { workspaceId, buildShipmentId, shipmentId } = req.params
+
+  try {
+    const updated = deleteShipment(dbString, workspaceId, buildShipmentId, shipmentId)
+    res.json(updated)
+  } catch (err) {
+    res.status(404).json;
+  }
+})
+
 
 module.exports = app
 
