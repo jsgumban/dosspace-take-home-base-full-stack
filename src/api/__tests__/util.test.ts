@@ -13,22 +13,19 @@ describe('Util tests', () => {
   }
 
   const workspaceId = createMockUuid()
+  const defaultTestWorkspaceId = 'fb374bf1-c76b-44b3-945b-ee03d35d7a3c'
 
-  beforeEach(() => {
-    mock({ [path.resolve(__dirname, testDbString)]: '' })
-    reset(testDbString)
+  afterAll(() => {
+    reset(testDbString, defaultTestWorkspaceId)
   })
 
-  afterEach(() => {
-    mock.restore()
-  })
 
-  describe.only('getWorkspaces', () => {
+  describe('getWorkspaces', () => {
     it('returns the workspaces from the db', () => {
       const workspaces = utils.getWorkspaces(testDbString)
       expect(workspaces).toBeDefined()
       expect(workspaces).toHaveLength(1)
-      expect(workspaces[0].id).toBe('fb374bf1-c76b-44b3-945b-ee03d35d7a3c')
+      expect(workspaces[0].id).toBe(defaultTestWorkspaceId)
       expect(workspaces[0].title).toEqual("Wiley's Shipping")
       expect(workspaces[0].buildShipments).toHaveLength(1)
       expect(workspaces[0].buildShipments[0].buildNumber).toEqual('A82D2-108')
@@ -39,7 +36,7 @@ describe('Util tests', () => {
 
   describe('getWorkspace', () => {
     it('returns the queried workspace from the db', () => {
-      const workspace = utils.getWorkspace(testDbString, 'fb374bf1-c76b-44b3-945b-ee03d35d7a3c')
+      const workspace = utils.getWorkspace(testDbString, defaultTestWorkspaceId)
       expect(workspace).toBeDefined()
       expect(workspace.title).toEqual("Wiley's Shipping")
       expect(workspace.buildShipments).toHaveLength(1)
